@@ -2,124 +2,62 @@
 
 import Link from "next/link";
 import { type Course } from "@/lib/courses";
+import styles from "./CourseOverview.module.css";
 
 export default function CourseOverview({ course }: { course: Course }) {
+  if (!course) return null;
+
   return (
-    <div className="container animate-fade-in" style={{ padding: "3rem 2rem" }}>
-      <div
-        className="hero"
-        style={{
-          minHeight: "auto",
-          alignItems: "flex-start",
-          textAlign: "left",
-          padding: "3rem",
-          marginBottom: "3rem",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            marginBottom: "1rem",
-            fontSize: "0.9rem",
-          }}
-        >
-          <Link href="/dashboard" style={{ color: "var(--primary-color)", textDecoration: "none" }}>
+    <div className={`container animate-fade-in ${styles.courseContainer}`}>
+      <div className={`hero ${styles.overviewHero}`}>
+        <div className={styles.breadcrumbs}>
+          <Link href="/dashboard" className={styles.breadcrumbsLink}>
             Dashboard
           </Link>
-          <span style={{ color: "var(--text-muted)" }}>/</span>
-          <span style={{ color: "var(--text-muted)" }}>{course.track}</span>
-          <span style={{ color: "var(--text-muted)" }}>/</span>
-          <span style={{ color: "var(--text-muted)" }}>{course.title}</span>
+          <span className={styles.breadcrumbsSeparator}>/</span>
+          <span className={styles.breadcrumbsCurrent}>{course.track}</span>
+          <span className={styles.breadcrumbsSeparator}>/</span>
+          <span className={styles.breadcrumbsCurrent}>{course.title}</span>
         </div>
 
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-          <span
-            style={{
-              background: "var(--bg-subtle)",
-              padding: "0.25rem 0.75rem",
-              borderRadius: "999px",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-              color: "var(--primary-color)",
-              border: "1px solid var(--border-color)",
-            }}
-          >
+        <div className={styles.badgeRow}>
+          <span className={styles.badgeTrack}>
             {course.track}
           </span>
-          <span
-            style={{
-              background: "var(--bg-subtle)",
-              padding: "0.25rem 0.75rem",
-              borderRadius: "999px",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-              color: "var(--text-muted)",
-              border: "1px solid var(--border-color)",
-            }}
-          >
+          <span className={styles.badgeLevel}>
             {course.level}
           </span>
         </div>
 
-        <h1 style={{ textAlign: "left", fontSize: "2.5rem", marginBottom: "0.75rem" }}>
+        <h1 className={styles.heroTitle}>
           {course.title}
         </h1>
-        <p style={{ fontSize: "1.15rem", maxWidth: "700px", margin: "0 0 2rem" }}>
+        <p className={styles.heroDesc}>
           {course.description}
         </p>
         <Link
           href={`/courses/${course.id}/test`}
-          className="btn btn-primary"
-          style={{ padding: "1rem 2rem", fontSize: "1.05rem" }}
+          className={`btn btn-primary ${styles.examLink}`}
         >
           Take Certification Exam →
         </Link>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "minmax(300px, 2fr) minmax(220px, 1fr)",
-          gap: "3rem",
-        }}
-      >
+      <div className={styles.contentPlan}>
         <div>
-          <h2
-            style={{
-              borderBottom: "1px solid var(--border-color)",
-              paddingBottom: "0.5rem",
-              marginBottom: "1.5rem",
-              fontSize: "1.5rem",
-            }}
-          >
+          <h2 className={styles.sectionTitle}>
             Syllabus
           </h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div className={styles.syllabusList}>
             {course.modules.map((mod, i) => (
-              <div key={i} className="glass-panel" style={{ padding: "1.5rem" }}>
-                <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-                  <span
-                    style={{
-                      minWidth: "28px",
-                      height: "28px",
-                      borderRadius: "50%",
-                      background: "var(--primary-color)",
-                      color: "#fff",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "0.8rem",
-                      fontWeight: 700,
-                      marginTop: "2px",
-                    }}
-                  >
+              <div key={i} className={`glass-panel ${styles.syllabusCard}`}>
+                <div className={styles.moduleRow}>
+                  <span className={styles.moduleNum}>
                     {i + 1}
                   </span>
                   <div>
-                    <h3 style={{ marginBottom: "0.3rem", fontSize: "1rem" }}>{mod.title}</h3>
-                    <p style={{ margin: 0, fontSize: "0.9rem" }}>{mod.description}</p>
+                    <h3 className={styles.moduleTitle}>{mod.title}</h3>
+                    <p className={styles.moduleDesc}>{mod.description}</p>
                   </div>
                 </div>
               </div>
@@ -127,34 +65,25 @@ export default function CourseOverview({ course }: { course: Course }) {
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <div className="glass-panel" style={{ padding: "2rem" }}>
-            <h3 style={{ marginBottom: "1.25rem" }}>Exam Details</h3>
-            <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+        <div className={styles.sideBar}>
+          <div className={`glass-panel ${styles.detailsCard}`}>
+            <h3 className={styles.detailsTitle}>Exam Details</h3>
+            <ul className={styles.detailsList}>
               {[
                 ["Level", course.level],
                 ["Questions", course.questions.length.toString()],
                 ["Passing Score", `${course.passingScore * 100}%`],
                 ["Reward", `${course.xp} XP`],
               ].map(([label, val]) => (
-                <li
-                  key={label}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    borderBottom: "1px solid var(--bg-subtle)",
-                    paddingBottom: "0.5rem",
-                  }}
-                >
-                  <span style={{ color: "var(--text-muted)" }}>{label}:</span>
-                  <strong style={{ color: "var(--text-main)" }}>{val}</strong>
+                <li key={label} className={styles.detailsItem}>
+                  <span className={styles.detailsLabel}>{label}:</span>
+                  <strong className={styles.detailsValue}>{val}</strong>
                 </li>
               ))}
             </ul>
             <Link
               href={`/courses/${course.id}/test`}
-              className="btn btn-primary"
-              style={{ width: "100%", marginTop: "1.5rem" }}
+              className={`btn btn-primary ${styles.detailsStartButton}`}
             >
               Start Exam
             </Link>

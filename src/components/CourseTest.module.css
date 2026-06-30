@@ -1,0 +1,217 @@
+.testContainer {
+  padding: 3rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.centerContainer {
+  text-align: center;
+  padding: 4rem;
+}
+
+.resultWrapper {
+  padding: 4rem 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.resultCard {
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.resultHeader {
+  margin-bottom: 0.5rem;
+}
+
+.scoreText {
+  font-size: 5rem;
+  font-weight: 700;
+  margin: 1.5rem 0;
+}
+
+.statusText {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.resultButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.flexButton {
+  flex: 1;
+}
+
+.progressWrapper {
+  margin-bottom: 1.5rem;
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.progressInfoTitle {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.progressTrack {
+  width: 100%;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.questionPanel {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.questionCountLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.questionTitle {
+  font-size: 1.4rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.optionButton {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.optionButtonDefault {
+  background: var(--option-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.optionButtonSelected {
+  background: var(--option-bg-active);
+  border: 2px solid var(--primary-color);
+  color: var(--text-main);
+}
+
+.optionBadge {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.optionBadgeDefault {
+  background: var(--border-color);
+  color: var(--text-muted);
+}
+
+.optionBadgeSelected {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.actionRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.dotsWrapper {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.dotBubble {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+}
+
+.warnMessage {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.timerContainer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+}
+
+.timerWarn {
+  color: var(--danger);
+  border-color: var(--danger);
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
+}
+
+.noSelect {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

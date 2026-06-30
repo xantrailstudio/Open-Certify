@@ -11,9 +11,27 @@
   --danger: #ef4444;
   --success: #10b981;
   --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+
+  /* Option buttons */
+  --option-bg: #ffffff;
+  --option-bg-active: #eff6ff;
 }
 
-/* Force Light Theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #0f172a;
+    --bg-subtle: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+
+    /* Dark Mode Option buttons */
+    --option-bg: #1e293b;
+    --option-bg-active: #1e3a8a;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

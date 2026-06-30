@@ -1,0 +1,175 @@
+.courseContainer {
+  padding: 3rem 2rem;
+}
+
+.overviewHero {
+  min-height: auto;
+  align-items: flex-start;
+  text-align: left;
+  padding: 3rem;
+  margin-bottom: 3rem;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.breadcrumbsLink {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.breadcrumbsSeparator, .breadcrumbsCurrent {
+  color: var(--text-muted);
+}
+
+.badgeRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.badgeTrack {
+  background: var(--bg-subtle);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  border: 1px solid var(--border-color);
+}
+
+.badgeLevel {
+  background: var(--bg-subtle);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.heroTitle {
+  text-align: left;
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.heroDesc {
+  font-size: 1.15rem;
+  max-width: 700px;
+  margin: 0 0 2rem;
+}
+
+.examLink {
+  padding: 1rem 2rem;
+  font-size: 1.05rem;
+}
+
+.contentPlan {
+  display: grid;
+  grid-template-columns: minmax(300px, 2fr) minmax(220px, 1fr);
+  gap: 3rem;
+}
+
+.sectionTitle {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.syllabusList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.syllabusCard {
+  padding: 1.5rem;
+}
+
+.moduleRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.moduleNum {
+  min-width: 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.moduleTitle {
+  margin-bottom: 0.3rem;
+  font-size: 1rem;
+}
+
+.moduleDesc {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.sideBar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.detailsCard {
+  padding: 2rem;
+}
+
+.detailsTitle {
+  margin-bottom: 1.25rem;
+}
+
+.detailsList {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.detailsItem {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--bg-subtle);
+  padding-bottom: 0.5rem;
+}
+
+.detailsLabel {
+  color: var(--text-muted);
+}
+
+.detailsValue {
+  color: var(--text-main);
+}
+
+.detailsStartButton {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .contentPlan {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}

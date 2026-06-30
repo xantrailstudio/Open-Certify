@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import styles from "./page.module.css";
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
 
   return (
-    <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+    <div className={`container animate-fade-in ${styles.landingContainer}`}>
       <div className="hero">
         <h1 style={{ textAlign: "center", color: 'var(--primary-color)' }}>
           Elevate Your Tech Career.
@@ -16,17 +17,17 @@ export default function LandingPage() {
           OpenCertify provides high-quality, completely free certification courses in HTML, CSS, and React. Build your skills, complete milestones, and earn verifiable certificates today.
         </p>
         
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center" }}>
+        <div className={styles.heroButtonRow}>
           {loading ? null : user ? (
-             <Link href="/dashboard" className="btn btn-primary" style={{ padding: "1rem 2rem", fontSize: "1.1rem" }}>
+             <Link href="/dashboard" className={`btn btn-primary ${styles.heroButton}`}>
                Go to Dashboard
              </Link>
           ) : (
             <>
-              <Link href="/signup" className="btn btn-primary" style={{ padding: "1rem 2rem", fontSize: "1.1rem" }}>
+              <Link href="/signup" className={`btn btn-primary ${styles.heroButton}`}>
                 Start Learning Now
               </Link>
-              <Link href="/login" className="btn btn-outline" style={{ padding: "1rem 2rem", fontSize: "1.1rem" }}>
+              <Link href="/login" className={`btn btn-outline ${styles.heroButton}`}>
                 Sign In
               </Link>
             </>
@@ -34,9 +35,9 @@ export default function LandingPage() {
         </div>
       </div>
       
-      <div style={{ marginTop: "6rem", width: "100%" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "0.75rem" }}>Our Courses</h2>
-        <p style={{ textAlign: "center", marginBottom: "3rem", maxWidth: "600px", margin: "0 auto 3rem" }}>
+      <div className={styles.coursesSection}>
+        <h2 className={styles.coursesHeader}>Our Courses</h2>
+        <p className={styles.coursesIntro}>
           10 free certifications across Web Development, Data Science, Cybersecurity, and more.
         </p>
         
@@ -92,21 +93,21 @@ export default function LandingPage() {
             ],
           },
         ].map((section) => (
-          <div key={section.track} style={{ marginBottom: "3rem" }}>
-            <h3 style={{ fontSize: "1.1rem", marginBottom: "1rem", paddingBottom: "0.5rem", borderBottom: "1px solid var(--border-color)", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <div key={section.track} className={styles.trackSection}>
+            <h3 className={styles.trackHeader}>
               {section.icon}
               {section.track}
             </h3>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem" }}>
+            <div className={styles.coursesGrid}>
               {section.courses.map((c) => (
-                <div key={c.id} className="glass-panel" style={{ padding: "1.5rem", borderTop: "3px solid var(--primary-color)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
-                    <h3 style={{ fontSize: "1rem", margin: 0 }}>{c.title}</h3>
-                    <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "var(--text-muted)", background: "var(--bg-subtle)", padding: "0.15rem 0.5rem", borderRadius: "999px", border: "1px solid var(--border-color)", whiteSpace: "nowrap", marginLeft: "0.5rem" }}>
+                <div key={c.id} className={`glass-panel ${styles.courseCard}`}>
+                  <div className={styles.cardHeader}>
+                    <h3 className={styles.cardTitle}>{c.title}</h3>
+                    <span className={styles.levelBadge}>
                       {c.level}
                     </span>
                   </div>
-                  <Link href={`/courses/${c.id}`} className="btn btn-primary" style={{ width: "100%", marginTop: "1rem", fontSize: "0.9rem", padding: "0.6rem 1rem" }}>
+                  <Link href={`/courses/${c.id}`} className={`btn btn-primary ${styles.viewButton}`}>
                     View Course
                   </Link>
                 </div>

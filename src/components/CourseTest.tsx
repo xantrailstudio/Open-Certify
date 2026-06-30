@@ -3,22 +3,160 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { recordExamResult } from "@/lib/firebase/firestore";
-import { type Course } from "@/lib/courses";
+import { startExamAction, submitExamAction } from "@/app/actions/exam";
 import Link from "next/link";
+import styles from "./CourseTest.module.css";
 
-export default function CourseTest({ course }: { course: Course }) {
+interface ClientQuestion {
+  question: string;
+  options: string[];
+}
+
+interface ClientCourse {
+  id: string;
+  title: string;
+  description: string;
+  level: string;
+  track: string;
+  passingScore: number;
+  xp: number;
+  modules: { title: string; description: string }[];
+  questions: ClientQuestion[];
+}
+
+export default function CourseTest({ course }: { course: ClientCourse }) {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   const [current, setCurrent] = useState(0);
-  const [selected, setSelected] = useState<number[]>(new Array(course.questions.length).fill(-1));
+  const [questions, setQuestions] = useState<ClientQuestion[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [examLoading, setExamLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ score: number; total: number; passed: boolean } | null>(null);
 
+  // Anti-cheating states
+  const [warnings, setWarnings] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(40);
+
   useEffect(() => {
-    if (!loading && !user) router.push(`/login?redirect=/courses/${course.id}/test`);
+    if (!loading && !user) {
+      router.push(`/login?redirect=/courses/${course.id}/test`);
+    }
   }, [user, loading, router, course.id]);
+
+  // Load exam session on mount securely from backend
+  useEffect(() => {
+    if (user) {
+      const initExam = async () => {
+        try {
+          const res = await startExamAction(course.id, user.uid);
+          if (res.success) {
+            setQuestions(res.questions);
+            setSelected(new Array(res.questions.length).fill(-1));
+          }
+        } catch (e) {
+          console.error("Failed to initialize exam session:", e);
+        } finally {
+          setExamLoading(false);
+        }
+      };
+      initExam();
+    }
+  }, [course.id, user]);
+
+  // Block right-clicks and text selection / copying
+  useEffect(() => {
+    const handleContextAndCopy = (e: Event) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener("contextmenu", handleContextAndCopy);
+    document.addEventListener("copy", handleContextAndCopy);
+
+    return () => {
+      document.removeEventListener("contextmenu", handleContextAndCopy);
+      document.removeEventListener("copy", handleContextAndCopy);
+    };
+  }, []);
+
+  // Submit Exam handler
+  const submit = async (force: boolean = false) => {
+    if (!user || submitting) return;
+
+    const allAnswered = !selected.includes(-1);
+    if (!force && !allAnswered) {
+      alert("Please answer all questions before submitting.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await submitExamAction(course.id, selected, user.uid);
+      if (res.success) {
+        setResult({ score: res.score, total: res.total, passed: res.passed });
+      }
+    } catch (e: any) {
+      console.error(e);
+      alert(e.message || "Failed to submit exam.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Tab switch detection (HTML5 Page Visibility API)
+  useEffect(() => {
+    if (questions.length === 0 || result || examLoading) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setWarnings((prev) => {
+          const nextWarnings = prev + 1;
+          if (nextWarnings > 2) {
+            alert("Exceeded maximum tab switches. Your exam is being automatically submitted.");
+            // Submit with current answers state asynchronously
+            submit(true);
+          } else {
+            alert(`Warning: Tab switching is strictly monitored. Next time it will auto-submit! (Warnings: ${nextWarnings}/2)`);
+          }
+          return nextWarnings;
+        });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [questions.length, result, examLoading, selected]);
+
+  // Question countdown timer (40 seconds per question)
+  useEffect(() => {
+    if (questions.length === 0 || result || examLoading) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          if (current < questions.length - 1) {
+            // Auto advance to next question
+            setCurrent((c) => c + 1);
+            return 40;
+          } else {
+            // Last question: Auto submit quiz
+            submit(true);
+            clearInterval(timer);
+            return 0;
+          }
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [current, questions.length, result, examLoading, selected]);
+
+  // Reset timer on change of question
+  useEffect(() => {
+    setTimeLeft(40);
+  }, [current]);
 
   const pick = (idx: number) => {
     const next = [...selected];
@@ -26,32 +164,19 @@ export default function CourseTest({ course }: { course: Course }) {
     setSelected(next);
   };
 
-  const submit = async () => {
-    if (!user) return;
-    setSubmitting(true);
-    const score = selected.reduce((acc, s, i) => acc + (s === course.questions[i].answer ? 1 : 0), 0);
-    const passed = score / course.questions.length >= course.passingScore;
-    try {
-      await recordExamResult(user.uid, course.id, { courseId: course.id, score, total: course.questions.length, passed });
-      setResult({ score, total: course.questions.length, passed });
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (loading || !user) return <div className="container" style={{ textAlign: "center", padding: "4rem" }}>Loading...</div>;
+  if (loading || examLoading || !user) {
+    return <div className={styles.centerContainer}>Loading Exam...</div>;
+  }
 
   if (result) return (
-    <div className="container animate-fade-in" style={{ padding: "4rem 2rem", display: "flex", justifyContent: "center" }}>
-      <div className="glass-panel" style={{ textAlign: "center", maxWidth: "500px", width: "100%" }}>
-        <h2 style={{ marginBottom: "0.5rem" }}>Exam Complete!</h2>
+    <div className={`container animate-fade-in ${styles.resultWrapper}`}>
+      <div className={`glass-panel ${styles.resultCard}`}>
+        <h2 className={styles.resultHeader}>Exam Complete!</h2>
         <p>{course.title}</p>
-        <div style={{ fontSize: "5rem", fontWeight: 700, margin: "1.5rem 0", color: result.passed ? "var(--success)" : "var(--danger)" }}>
+        <div className={styles.scoreText} style={{ color: result.passed ? "var(--success)" : "var(--danger)" }}>
           {result.score}/{result.total}
         </div>
-        <p style={{ fontSize: "1.1rem", fontWeight: 600, color: result.passed ? "var(--success)" : "var(--danger)" }}>
+        <p className={styles.statusText} style={{ color: result.passed ? "var(--success)" : "var(--danger)" }}>
           {result.passed ? (
             <>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.4rem' }}>
@@ -61,7 +186,7 @@ export default function CourseTest({ course }: { course: Course }) {
             </>
           ) : `You need ${Math.ceil(course.passingScore * 100)}% to pass. Keep studying!`}
         </p>
-        <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
+        <div className={styles.resultButtons}>
           <Link href={`/courses/${course.id}`} className="btn btn-outline" style={{ flex: 1 }}>Review Course</Link>
           <Link href="/dashboard" className="btn btn-primary" style={{ flex: 1 }}>Dashboard</Link>
         </div>
@@ -69,48 +194,47 @@ export default function CourseTest({ course }: { course: Course }) {
     </div>
   );
 
-  const q = course.questions[current];
-  const progress = ((current + 1) / course.questions.length) * 100;
+  const q = questions[current];
+  if (!q) return <div className={styles.centerContainer}>Loading Question...</div>;
+
+  const progress = ((current + 1) / questions.length) * 100;
   const allAnswered = !selected.includes(-1);
 
   return (
-    <div className="container animate-fade-in" style={{ padding: "3rem 2rem", maxWidth: "800px" }}>
+    <div className={`container animate-fade-in ${styles.testContainer} ${styles.noSelect}`}>
       <div style={{ marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "0.9rem", color: "var(--text-muted)" }}>
-          <span style={{ fontWeight: 600, color: "var(--text-main)" }}>{course.title}</span>
-          <span>Question {current + 1} / {course.questions.length}</span>
+        <div className={styles.progressInfo}>
+          <span className={styles.progressInfoTitle}>{course.title}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div className={`${styles.timerContainer} ${timeLeft <= 10 ? styles.timerWarn : ""}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {timeLeft}s
+            </div>
+            <span>Question {current + 1} / {questions.length}</span>
+          </div>
         </div>
-        <div style={{ width: "100%", height: "6px", background: "var(--border-color)", borderRadius: "3px" }}>
-          <div style={{ width: `${progress}%`, height: "100%", background: "var(--primary-color)", borderRadius: "3px", transition: "width 0.3s ease" }} />
+        <div className={styles.progressTrack}>
+          <div className={styles.progressFill} style={{ width: `${progress}%` }} />
         </div>
       </div>
 
-      <div className="glass-panel" style={{ marginBottom: "1.5rem" }}>
-        <p style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--primary-color)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem" }}>
+      <div className={`glass-panel ${styles.questionPanel}`}>
+        <p className={styles.questionCountLabel}>
           Question {current + 1}
         </p>
-        <h2 style={{ fontSize: "1.4rem", lineHeight: 1.5, marginBottom: "2rem" }}>{q.question}</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <h2 className={styles.questionTitle}>{q.question}</h2>
+        <div className={styles.optionsList}>
           {q.options.map((opt, idx) => {
             const isSelected = selected[current] === idx;
             return (
               <button
                 key={idx}
                 onClick={() => pick(idx)}
-                style={{
-                  padding: "1rem 1.25rem",
-                  textAlign: "left",
-                  background: isSelected ? "#eff6ff" : "#fff",
-                  border: isSelected ? "2px solid var(--primary-color)" : "1px solid var(--border-color)",
-                  borderRadius: "8px",
-                  color: "var(--text-main)",
-                  fontSize: "1rem",
-                  fontWeight: 500,
-                  cursor: "pointer",
-                  transition: "all 0.15s",
-                }}
+                className={`${styles.optionButton} ${isSelected ? styles.optionButtonSelected : styles.optionButtonDefault}`}
               >
-                <span style={{ display: "inline-flex", width: "22px", height: "22px", borderRadius: "50%", background: isSelected ? "var(--primary-color)" : "var(--border-color)", color: isSelected ? "#fff" : "var(--text-muted)", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700, marginRight: "0.75rem" }}>
+                <span className={`${styles.optionBadge} ${isSelected ? styles.optionBadgeSelected : styles.optionBadgeDefault}`}>
                   {String.fromCharCode(65 + idx)}
                 </span>
                 {opt}
@@ -120,23 +244,39 @@ export default function CourseTest({ course }: { course: Course }) {
         </div>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <button className="btn btn-outline" onClick={() => setCurrent(c => c - 1)} disabled={current === 0} style={{ opacity: current === 0 ? 0.4 : 1 }}>
+      <div className={styles.actionRow}>
+        <button
+          className="btn btn-outline"
+          onClick={() => setCurrent(c => c - 1)}
+          disabled={current === 0}
+          style={{ opacity: current === 0 ? 0.4 : 1 }}
+        >
           ← Previous
         </button>
 
-        <div style={{ display: "flex", gap: "0.4rem" }}>
-          {course.questions.map((_, i) => (
-            <button key={i} onClick={() => setCurrent(i)} style={{
-              width: "32px", height: "32px", borderRadius: "50%", border: "none", cursor: "pointer", fontSize: "0.8rem", fontWeight: 600,
-              background: i === current ? "var(--primary-color)" : selected[i] !== -1 ? "#dbeafe" : "var(--border-color)",
-              color: i === current ? "#fff" : selected[i] !== -1 ? "var(--primary-color)" : "var(--text-muted)",
-            }}>{i + 1}</button>
+        <div className={styles.dotsWrapper}>
+          {questions.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={styles.dotBubble}
+              style={{
+                background: i === current ? "var(--primary-color)" : selected[i] !== -1 ? "#dbeafe" : "var(--border-color)",
+                color: i === current ? "#fff" : selected[i] !== -1 ? "var(--primary-color)" : "var(--text-muted)",
+              }}
+            >
+              {i + 1}
+            </button>
           ))}
         </div>
 
-        {current === course.questions.length - 1 ? (
-          <button className="btn btn-primary" onClick={submit} disabled={submitting || !allAnswered} style={{ opacity: !allAnswered ? 0.6 : 1 }}>
+        {current === questions.length - 1 ? (
+          <button
+            className="btn btn-primary"
+            onClick={() => submit(false)}
+            disabled={submitting || !allAnswered}
+            style={{ opacity: !allAnswered ? 0.6 : 1 }}
+          >
             {submitting ? "Submitting…" : "Submit Exam"}
           </button>
         ) : (
@@ -145,8 +285,8 @@ export default function CourseTest({ course }: { course: Course }) {
           </button>
         )}
       </div>
-      {!allAnswered && current === course.questions.length - 1 && (
-        <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "0.875rem", color: "var(--text-muted)" }}>
+      {!allAnswered && current === questions.length - 1 && (
+        <p className={styles.warnMessage}>
           Please answer all questions before submitting.
         </p>
       )}

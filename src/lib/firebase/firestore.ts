@@ -40,6 +40,33 @@ export async function createUserProfile(uid: string, email: string): Promise<voi
   await setDoc(docRef, initialData);
 }
 
+export interface ActiveSession {
+  courseId: string;
+  correctAnswers: number[];
+  startTime: string;
+}
+
+export async function saveActiveSession(uid: string, session: ActiveSession): Promise<void> {
+  const docRef = doc(db, "users", uid);
+  await updateDoc(docRef, {
+    activeSession: session
+  });
+}
+
+export async function getActiveSession(uid: string): Promise<ActiveSession | null> {
+  const userProfile = await getUserProfile(uid);
+  if (!userProfile) return null;
+  // @ts-ignore
+  return userProfile.activeSession || null;
+}
+
+export async function clearActiveSession(uid: string): Promise<void> {
+  const docRef = doc(db, "users", uid);
+  await updateDoc(docRef, {
+    activeSession: null
+  });
+}
+
 export async function recordExamResult(uid: string, courseId: string, result: Omit<ExamResult, 'date'>): Promise<void> {
   const userProfile = await getUserProfile(uid);
   if (!userProfile) return;
