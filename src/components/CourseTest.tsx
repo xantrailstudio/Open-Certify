@@ -52,7 +52,14 @@ export default function CourseTest({ course }: { course: Course }) {
           {result.score}/{result.total}
         </div>
         <p style={{ fontSize: "1.1rem", fontWeight: 600, color: result.passed ? "var(--success)" : "var(--danger)" }}>
-          {result.passed ? `You passed and earned ${course.xp} XP! 🎉` : `You need ${Math.ceil(course.passingScore * 100)}% to pass. Keep studying!`}
+          {result.passed ? (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.4rem' }}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              {`You passed and earned ${course.xp} XP!`}
+            </>
+          ) : `You need ${Math.ceil(course.passingScore * 100)}% to pass. Keep studying!`}
         </p>
         <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
           <Link href={`/courses/${course.id}`} className="btn btn-outline" style={{ flex: 1 }}>Review Course</Link>
