@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
+  color-scheme: light;
   --primary-color: #2563eb;
   --secondary-color: #1d4ed8;
   --bg-color: #ffffff;
@@ -15,21 +16,6 @@
   /* Option buttons */
   --option-bg: #ffffff;
   --option-bg-active: #eff6ff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #0f172a;
-    --bg-subtle: #1e293b;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --border-color: #334155;
-    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
-
-    /* Dark Mode Option buttons */
-    --option-bg: #1e293b;
-    --option-bg-active: #1e3a8a;
-  }
 }
 
 * {
@@ -72,19 +58,19 @@ body {
 }
 
 .btn-primary {
-  background-color: var(--primary-color);
-  color: #ffffff;
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
   box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: var(--secondary-color);
+  background-color: var(--secondary-color) !important;
   transform: translateY(-1px);
 }
 
 .btn-outline {
-  background-color: transparent;
-  color: var(--primary-color);
+  background-color: transparent !important;
+  color: var(--primary-color) !important;
   border: 1.5px solid var(--primary-color);
 }
 

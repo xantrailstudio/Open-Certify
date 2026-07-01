@@ -79,7 +79,7 @@ export default function DashboardPage() {
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: '#ffffff', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: 'var(--card-shadow)' }}>
               <div>
                 <h4 style={{ margin: 0, color: 'var(--text-main)' }}>HTML Certification</h4>
                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Master the basics of the web.</p>
@@ -89,7 +89,7 @@ export default function DashboardPage() {
               </Link>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: '#ffffff', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: 'var(--card-shadow)' }}>
               <div>
                 <h4 style={{ margin: 0, color: 'var(--text-main)' }}>CSS Styling</h4>
                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Master responsive layout and design.</p>
@@ -99,12 +99,22 @@ export default function DashboardPage() {
               </Link>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: '#ffffff', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: 'var(--card-shadow)' }}>
               <div>
-                <h4 style={{ margin: 0, color: 'var(--text-main)' }}>React Mastery</h4>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Build dynamic interfaces with React.</p>
+                <h4 style={{ margin: 0, color: 'var(--text-main)' }}>Next.js Full-Stack</h4>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Next.js App Router and server actions.</p>
               </div>
-              <Link href="/courses/react" className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+              <Link href="/courses/nextjs" className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+                Open
+              </Link>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'var(--bg-subtle)', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: 'var(--card-shadow)' }}>
+              <div>
+                <h4 style={{ margin: 0, color: 'var(--text-main)' }}>Python for Beginners</h4>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Syntaxes, collections and function basics.</p>
+              </div>
+              <Link href="/courses/python" className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
                 Open
               </Link>
             </div>
@@ -133,25 +143,35 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {profile.history.map((exam, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td style={{ padding: '1rem 0', textTransform: 'uppercase' }}>{exam.courseId}</td>
-                    <td style={{ padding: '1rem 0' }}>{new Date(exam.date).toLocaleDateString()}</td>
-                    <td style={{ padding: '1rem 0' }}>{exam.score} / {exam.total}</td>
-                    <td style={{ padding: '1rem 0' }}>
-                      <span style={{ 
-                        background: exam.passed ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)', 
-                        color: exam.passed ? 'var(--success)' : 'var(--danger)',
-                        padding: '0.25rem 0.5rem',
-                        borderRadius: '4px',
-                        fontWeight: 600,
-                        fontSize: '0.85rem'
-                      }}>
-                        {exam.passed ? 'Passed' : 'Failed'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {profile.history.map((exam, idx) => {
+                  // Safely parse date - Firestore Timestamp objects have .toDate(), ISO strings work in new Date()
+                  let dateStr = '—';
+                  try {
+                    const raw = exam.date as any;
+                    const d = raw?.toDate ? raw.toDate() : new Date(raw);
+                    if (!isNaN(d.getTime())) dateStr = d.toLocaleDateString();
+                  } catch {}
+
+                  return (
+                    <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <td style={{ padding: '1rem 0', textTransform: 'uppercase' }}>{exam.courseId || '—'}</td>
+                      <td style={{ padding: '1rem 0' }}>{dateStr}</td>
+                      <td style={{ padding: '1rem 0' }}>{exam.score ?? '?'} / {exam.total ?? '?'}</td>
+                      <td style={{ padding: '1rem 0' }}>
+                        <span style={{ 
+                          background: exam.passed ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)', 
+                          color: exam.passed ? 'var(--success)' : 'var(--danger)',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '4px',
+                          fontWeight: 600,
+                          fontSize: '0.85rem'
+                        }}>
+                          {exam.passed ? 'Passed' : 'Failed'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

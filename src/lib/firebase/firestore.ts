@@ -67,8 +67,12 @@ export async function clearActiveSession(uid: string): Promise<void> {
   });
 }
 
-export async function recordExamResult(uid: string, courseId: string, result: Omit<ExamResult, 'date'>): Promise<void> {
-  const userProfile = await getUserProfile(uid);
+export async function recordExamResult(uid: string, courseId: string, result: Omit<ExamResult, 'date'>, email?: string): Promise<void> {
+  let userProfile = await getUserProfile(uid);
+  if (!userProfile) {
+    await createUserProfile(uid, email || "anonymous@opencertify.org");
+    userProfile = await getUserProfile(uid);
+  }
   if (!userProfile) return;
 
   const newHistory = [
